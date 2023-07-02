@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "${description}",
+  "authors": [
+    "${author}"
+  ],
+  "contact": {
+    "sources": "${source}"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/${id}/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "${group}.fabric.EntrypointKt::Init"
+      }
+    ]
+  },
+  "mixins": [
+    "${id}.mixins.json",
+    "${id}-fabric-like.mixins.json",
+    "${id}-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}",
+    "fabric-language-kotlin": ">=${fabric_language_kotlin_version}"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "respawn_complex.name": "重生机制",
+  "respawn_complex.config.category.activation": "激活",
+  "respawn_complex.option.enable_activation": "启用",
+  "respawn_complex.option.enable_activation.tooltip": "重生点需要激活后才可以重生",
+  "respawn_complex.option.activate_method": "激活方式",
+  "respawn_complex.option.activate_method.tooltip": "重生点激活的方式\n  %s - 与指定位置的方块交互\n  %s - 移动到指定位置的一定范围内",
+  "respawn_complex.option.activate_method.interact": "交互",
+  "respawn_complex.option.activate_method.moving": "移动",
+  "respawn_complex.option.send_activation_message": "发送激活信息",
+  "respawn_complex.option.activation_range": "激活范围",
+  "respawn_complex.option.activation_range.tooltip": "激活方式为移动时的激活范围",
+  "respawn_complex.command.remove.failure": "4 格内不存在重生点",
+  "respawn_complex.command.remove.success": "重生点 %s 已移除",
+  "respawn_complex.command.click_to_teleport": "点击建议传送指令",
+  "respawncomplex.message.activated": "重生点已激活"
+}

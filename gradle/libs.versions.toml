@@ -1,0 +1,63 @@
+[versions]
+kotlin = "1.8.0"
+kotlinx_serialization = "1.5.1"
+minecraft = "1.19.2"
+architectury = "6.5.85"
+forge = "1.19.2-43.2.14"
+kotlinforforge = "3.12.0"
+fabric_loader = "0.14.11"
+fabric_api = "0.76.0+1.19.2"
+fabric_language_kotlin = "1.9.5+kotlin.1.8.22"
+quilt_loader = "0.19.2-beta.2"
+quilt_fabric_api = "4.0.0-beta.30+0.76.0-1.19.2"
+quilt_standard_libraries = "3.0.0-beta.29+1.19.2"
+quilt_kotlin_libraries = "1.0.2+kt.1.8.0+flk.1.9.0"
+yet_another_config_lib = "1.7.1"
+cardinal_components_api = "5.0.2"
+minecrat_tag_serialization = "0.1.0"
+luckperms = "5.4"
+modmenu = "4.0.6"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+architectury = { module = "dev.architectury:architectury", version.ref = "architectury" }
+
+architectury_forge = { module = "dev.architectury:architectury-forge", version.ref = "architectury" }
+forge = { module = "net.minecraftforge:forge", version.ref = "forge" }
+# https://github.com/thedarkcolour/KotlinForForge/blob/4.x/README.md
+kotlinforforge = { module = "thedarkcolour:kotlinforforge", version.ref = "kotlinforforge" }
+
+architectury_fabric = { module = "dev.architectury:architectury-fabric", version.ref = "architectury" }
+fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
+fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
+# https://github.com/FabricMC/fabric-language-kotlin
+fabric_languageKotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_language_kotlin" }
+
+quilt_loader = { module = "org.quiltmc:quilt-loader", version.ref = "quilt_loader" }
+quilt_fabricApi = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "quilt_fabric_api" }
+quilt_standardLibraries = { module = "org.quiltmc:qsl", version.ref = "quilt_standard_libraries" }
+# https://github.com/QuiltMC/quilt-kotlin-libraries
+quilt_kotlinLibraries = { module = "org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries", version.ref = "quilt_kotlin_libraries" }
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+yacl = { module = "dev.isxander:yet-another-config-lib", version.ref = "yet_another_config_lib" }
+modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
+
+cardinalComponents_base = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-base", version.ref = "cardinal_components_api" }
+cardinalComponents_entity = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-entity", version.ref = "cardinal_components_api" }
+cardinalComponents_world = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-world", version.ref = "cardinal_components_api" }
+
+kotlinx_serialization_core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx_serialization" }
+kotlinx_serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
+
+minecratTagSerialization = { module = "maven.modrinth:nbt-tag-serialization", version.ref = "minecrat_tag_serialization" }
+minecratTagSerializationLocal = { module = "settingdust.minecraft:nbt-tag-serialization", version.ref = "minecrat_tag_serialization" }
+
+luckperms = { module = "net.luckperms:api", version.ref = "luckperms" }
+
+[plugins]
+architectury_plugin = { id = "architectury-plugin", version = "3.4-SNAPSHOT" }
+architectury_loom = { id = "dev.architectury.loom", version = "1.2.+" }
+
+kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin_plugin_serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

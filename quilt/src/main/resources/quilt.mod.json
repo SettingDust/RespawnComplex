@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "mixins": [
+    "${id}.mixins.json",
+    "${id}-fabric-like.mixins.json",
+    "${id}-common.mixins.json"
+  ],
+  "quilt_loader": {
+    "group": "${group}",
+    "id": "${id}",
+    "version": "${version}",
+    "name": "${name}",
+    "description": "${description}",
+    "authors": [
+      "${author}"
+    ],
+    "contact": {
+      "sources": "${source}"
+    },
+    "license": "Apache-2.0",
+    "icon": "assets/${id}/icon.png",
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "environment": "*",
+    "entrypoints": {
+      "init": {
+        "adapter": "kotlin",
+        "value": "${group}.Entrypoint"
+      },
+      "cardinal-components": {
+        "adapter": "kotlin",
+        "value": "${group}.Components"
+      },
+      "modmenu": {
+        "adapter": "kotlin",
+        "value": "${group}.ConfigModmenuProvider"
+      }
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "version": "*"
+      },
+      {
+        "id": "quilt_base",
+        "version": "*"
+      },
+      {
+        "id": "minecraft",
+        "version": ">=${minecraft_version}"
+      },
+      {
+        "id": "fabric-language-kotlin",
+        "version": ">=${fabric_language_kotlin_version}"
+      }
+    ]
+  },
+  "cardinal-components": [
+    "${components}"
+  ]
+}

@@ -1,0 +1,36 @@
+modLoader="kotlinforforge"
+# Change this if you require a certain version of KotlinForForge
+loaderVersion="[3+,)"
+#issueTrackerURL = ""
+license = "Insert License Here"
+
+[[mods]]
+modId = "${id}"
+version = "${version}"
+displayName = "${name}"
+authors = "${author}"
+description = '''
+${description}
+'''
+#logoFile = ""
+
+[[dependencies.${id}]]
+modId = "forge"
+mandatory = true
+versionRange = "[${forge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${minecraft_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${id}]]
+modId = "kotlinforforge"
+mandatory = true
+versionRange = "[${kotlinforforge_version},)"
+ordering = "AFTER"
+side = "BOTH"
