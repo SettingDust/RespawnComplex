@@ -18,15 +18,17 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.RespawnAnchorBlock
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.HitResult
-import net.minecraft.world.phys.Vec3
 import kotlin.streams.asSequence
 
 val ServerPlayer.activatedRespawnPoints: MutableSet<Location>
     get() = RespawnComplex.Components.COMPLEX_RESPAWNING[this].activated
 
-fun ServerPlayer.activate(location: Location) {
-    RespawnComplex.Components.COMPLEX_RESPAWNING[this].activated.add(location)
-    if (RespawnComplex.config.enableActivation && RespawnComplex.config.sendActivationMessage) {
+fun ServerPlayer.activate(location: Location): Boolean {
+    val result = RespawnComplex.Components.COMPLEX_RESPAWNING[this].activated.add(location)
+    if (result &&
+        RespawnComplex.config.enableActivation &&
+        RespawnComplex.config.sendActivationMessage
+    ) {
         sendSystemMessage(
             Component.translatable(
                 "respawn_complex.message.activated",
@@ -34,6 +36,7 @@ fun ServerPlayer.activate(location: Location) {
             ),
         )
     }
+    return result
 }
 
 fun ServerPlayer.complexRespawnPoint(deathLocation: Location): Location =
@@ -73,16 +76,10 @@ data class ComplexRespawningComponent(private val player: Player) :
 
                         else -> success = true
                     }
-                    if (success) {
-                        serverPlayer!!.activate(Location(world, pos))
+                    if (success && serverPlayer!!.activate(Location(world, pos))) {
                         return@register InteractionResult.SUCCESS
                     }
                 }
-            }
-            if (!RespawnComplex.config.enableActivation || RespawnComplex.config.activateMethod != ActivateMethod.INTERACT) InteractionResult.PASS
-            if (world.complexSpawnPoints.contains(pos)) {
-
-                return@register InteractionResult.SUCCESS
             }
             if (state.`is`(BlockTags.BEDS) || state.block is RespawnAnchorBlock) {
                 InteractionResult.FAIL
@@ -111,7 +108,7 @@ data class ComplexRespawningComponent(private val player: Player) :
         serverPlayer!!.setRespawnPosition(serverPlayer!!.level.dimension(), respawnPoint.pos, 0f, false, false)
         serverPlayer!!.moveTo(
             respawnPoint.pos.x + 0.5,
-            respawnPoint.pos.y + 0.5,
+            respawnPoint.pos.y.toDouble(),
             respawnPoint.pos.z + 0.5,
         )
     }
@@ -182,19 +179,19 @@ data class ComplexRespawningComponent(private val player: Player) :
         )
     }
 
-    private fun availableSpaceFromPos(location: Location, radius: Int = 3) =
-        BlockPos.betweenClosedStream(
-            AABB.ofSize(
-                Vec3.atCenterOf(location.pos),
-                radius * 2.0,
-                radius * 2.0,
-                radius * 2.0,
-            ),
-        )
-            .asSequence()
-            .firstOrNull {
-                location.level.noCollision(AABB(it, it.above(2)))
-            }.let { pos ->
-                pos?.let { Location(location.level, it) }
-            }
+    private fun availableSpaceFromPos(location: Location, radius: Int = 3): Location? {
+        val level = location.level
+        val size = radius * 2
+        val nearPoses = BlockPos.withinManhattan(location.pos, size, size, size).asSequence()
+        val immutablePoses = nearPoses.map { it.immutable() }
+        val solidPoses = immutablePoses.filter { level.getBlockState(it.below()).material.blocksMotion() }
+        val safePoses = solidPoses.filter {
+            val blocksAbove = level.getBlockStates(AABB(it, it.above())).asSequence()
+            val enoughSpace = blocksAbove.all { state -> !state.material.blocksMotion() }
+            enoughSpace
+        }
+        val shuffledSafeBlocks = safePoses.take(16).shuffled()
+        val firstPos = shuffledSafeBlocks.firstOrNull()
+        return firstPos?.let { Location(level, it) }
+    }
 }

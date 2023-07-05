@@ -7,19 +7,35 @@ import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.RespawnAnchorBlock
 import settingdust.tag.serialization.decodeFromTag
 import settingdust.tag.serialization.encodeToTag
 
 val Level.complexSpawnPoints: MutableSet<BlockPos>
     get() = RespawnComplex.Components.COMPLEX_RESPAWN_POINTS[this].spawnPoints
 
-internal fun ServerLevel.syncBlockPlace(player: ServerPlayer, pos: BlockPos, block: Block) {
+internal fun BlockItem.syncBlockPlace(context: BlockPlaceContext) {
     if (!RespawnComplex.config.enableSync) return
     if (block.builtInRegistryHolder().`is`(respawnPointBlockTag)) {
-        RespawnComplex.Components.COMPLEX_RESPAWN_POINTS[this].spawnPoints.add(pos)
-        player.activate(Location(this, pos))
+        var success = false
+        when (block) {
+            is RespawnAnchorBlock ->
+                if (RespawnAnchorBlock.canSetSpawn(context.level) &&
+                    (block.getStateForPlacement(context)?.getValue(RespawnAnchorBlock.CHARGE) ?: 0) > 0
+                ) {
+                    success = true
+                }
+
+            else -> success = true
+        }
+        if (success) {
+            val level = context.level as ServerLevel
+            level.complexSpawnPoints.add(context.clickedPos)
+            (context.player as ServerPlayer).activate(Location(level, context.clickedPos))
+        }
     }
 }
 
@@ -38,6 +54,14 @@ data class ComplexSpawnPointsComponent(private val level: Level) : Component {
             if (player !is ServerPlayer) return@register
             if (serverLevel != level) return@register
             _spawnPoints.remove(blockPos)
+            level.server.playerList.players.forEach {
+                it.activatedRespawnPoints.remove(
+                    Location(
+                        serverLevel!!,
+                        blockPos,
+                    ),
+                )
+            }
         }
     }
 
