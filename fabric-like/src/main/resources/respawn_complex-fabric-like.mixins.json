@@ -5,6 +5,7 @@
   "client": [
   ],
   "mixins": [
+    "MixinBlockItem"
   ],
   "minVersion": "0.8",
   "injectors": {

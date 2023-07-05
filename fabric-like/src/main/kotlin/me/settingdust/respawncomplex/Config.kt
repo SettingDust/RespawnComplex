@@ -45,6 +45,7 @@ data class Config(
     private var _activateMethod: ActivateMethod = ActivateMethod.INTERACT,
     private var _sendActivationMessage: Boolean = true,
     private var _activationRange: Int = 4,
+    private var _enableSync: Boolean = true,
 ) {
     companion object {
         var Instance: Config
@@ -70,6 +71,8 @@ data class Config(
         get() = _sendActivationMessage
     val activationRangeSqr: Int
         get() = _activationRange * _activationRange
+    val enableSync: Boolean
+        get() = _enableSync
 
     private val config: YetAnotherConfigLib
         get() = YetAnotherConfigLib.createBuilder()
@@ -112,6 +115,19 @@ data class Config(
                             .tooltip(Component.translatable("respawn_complex.option.activation_range.tooltip"))
                             .binding(4, ::_activationRange) { _activationRange = it }
                             .controller { IntegerSliderController(it, 0, 32, 1) }
+                            .build(),
+                    )
+                    .build(),
+            )
+            .category(
+                ConfigCategory.createBuilder()
+                    .name(Component.translatable("respawn_complex.config.category.sync"))
+                    .option(
+                        Option.createBuilder(Boolean::class.java)
+                            .name(Component.translatable("respawn_complex.option.enable_sync"))
+                            .tooltip(Component.translatable("respawn_complex.option.enable_sync.tooltip"))
+                            .binding(true, ::_enableSync) { _enableSync = it }
+                            .controller(::BooleanController)
                             .build(),
                     )
                     .build(),

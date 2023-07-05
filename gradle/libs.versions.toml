@@ -17,6 +17,7 @@ cardinal_components_api = "5.0.2"
 minecrat_tag_serialization = "0.1.0"
 luckperms = "5.4"
 modmenu = "4.0.6"
+mixin_extras = "0.2.0-beta.9"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -54,6 +55,8 @@ minecratTagSerialization = { module = "maven.modrinth:nbt-tag-serialization", ve
 minecratTagSerializationLocal = { module = "settingdust.minecraft:nbt-tag-serialization", version.ref = "minecrat_tag_serialization" }
 
 luckperms = { module = "net.luckperms:api", version.ref = "luckperms" }
+
+mixin_extras = { module = "com.github.llamalad7.mixinextras:mixinextras-fabric", version.ref = "mixin_extras" }
 
 [plugins]
 architectury_plugin = { id = "architectury-plugin", version = "3.4-SNAPSHOT" }

@@ -10,6 +10,17 @@ loom {
 }
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = uri("https://api.modrinth.com/maven")
+            }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
     maven("https://maven.isxander.dev/releases") {
         name = "Xander Maven"
     }
@@ -26,22 +37,25 @@ dependencies {
     api(libs.luckperms)
 
     modImplementation(libs.fabric.loader)
-    modCompileOnly(libs.fabric.api)
+    modApi(libs.fabric.api)
 
-    modCompileOnly(libs.yacl)
-    modCompileOnly(libs.modmenu)
+    modApi(libs.yacl)
+    modApi(libs.modmenu)
 
     val id = rootProject.property("mod_id").toString()
     project.extraProperties["components"] = arrayOf("complex_respawning", "complex_respawn_points").joinToString(", ") {
         "\"$id:$it\""
     }.removeSurrounding("\"")
 
-    modCompileOnly(libs.cardinalComponents.base)
-    modCompileOnly(libs.cardinalComponents.entity)
-    modCompileOnly(libs.cardinalComponents.world)
+    modApi(libs.cardinalComponents.base)
+    modApi(libs.cardinalComponents.entity)
+    modApi(libs.cardinalComponents.world)
 
-    modCompileOnly(libs.minecratTagSerializationLocal)
+    modApi(libs.minecratTagSerializationLocal)
 
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly(project(":common", configuration = "namedElements")) { isTransitive = false }
+
+    annotationProcessor(libs.mixin.extras)
+    implementation(libs.mixin.extras)
 }

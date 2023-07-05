@@ -12,6 +12,10 @@
   "respawn_complex.option.activation_range.tooltip": "激活方式为移动时的激活范围",
   "respawn_complex.command.remove.failure": "4 格内不存在重生点",
   "respawn_complex.command.remove.success": "重生点 %s 已移除",
+  "respawn_complex.command.list.empty": "没有重生点",
   "respawn_complex.command.click_to_teleport": "点击建议传送指令",
-  "respawncomplex.message.activated": "重生点已激活"
+  "respawn_complex.message.activated": "重生点已激活",
+  "respawn_complex.config.category.sync": "同步",
+  "respawn_complex.option.enable_sync": "启用同步",
+  "respawn_complex.option.enable_sync.tooltip": "重生点与带有 #respawn_complex:respawn_point 标签的方块同步"
 }

@@ -25,6 +25,16 @@ configurations {
     developmentFabric.extendsFrom(configurations["common"])
 }
 
+repositories {
+    maven("https://maven.isxander.dev/releases") {
+        name = "Xander Maven"
+    }
+    maven("https://maven.terraformersmc.com/releases") // Mod Menu. YACL need it
+    maven("https://ladysnake.jfrog.io/artifactory/mods")
+    maven("https://jitpack.io")
+    mavenLocal()
+}
+
 dependencies {
     modImplementation(libs.fabric.loader)
 //    modApi(libs.fabric.api)
@@ -37,6 +47,10 @@ dependencies {
     shadowCommon(project(":fabric-like", configuration = "transformProductionFabric")) { isTransitive = false }
 
     modImplementation(libs.fabric.languageKotlin)
+
+    annotationProcessor(libs.mixin.extras)
+    implementation(libs.mixin.extras)
+    include(libs.mixin.extras)
 }
 
 val javaComponent = components.getByName<AdhocComponentWithVariants>("java")

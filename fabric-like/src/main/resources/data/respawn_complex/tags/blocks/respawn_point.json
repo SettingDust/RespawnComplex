@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:beacon",
+    "minecraft:respawn_anchor",
+    {
+      "id": "#fwaystones:waystones",
+      "required": false
+    },
+    {
+      "id": "#waystones:waystone",
+      "required": false
+    }
+  ]
+}

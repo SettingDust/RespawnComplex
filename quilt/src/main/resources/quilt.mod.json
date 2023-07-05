@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
-  "mixins": [
-    "${id}.mixins.json",
+  "mixin": [
     "${id}-fabric-like.mixins.json",
     "${id}-common.mixins.json"
   ],

@@ -1,0 +1,21 @@
+{
+  "respawn_complex.name": "Respawn Complex",
+  "respawn_complex.config.category.activation": "Activation",
+  "respawn_complex.option.enable_activation": "Enable Activation",
+  "respawn_complex.option.enable_activation.tooltip": "Respawn points need to be activated before they can be used.",
+  "respawn_complex.option.activate_method": "Activation Method",
+  "respawn_complex.option.activate_method.tooltip": "Activation method for respawn points:\n  %s - Activate by interacting with the respawn point\n  %s - Activate by interacting with block at the respawn point\n  %s - Move to pos that close to the respawn point",
+  "respawn_complex.option.activate_method.interact": "Interact",
+  "respawn_complex.option.activate_method.moving": "Moving",
+  "respawn_complex.option.send_activation_message": "Send Activation Message",
+  "respawn_complex.option.activation_range": "Activation Range",
+  "respawn_complex.option.activation_range.tooltip": "The range of activation",
+  "respawn_complex.command.remove.failure": "No respawn point in 4 blocks",
+  "respawn_complex.command.remove.success": "Respawn point %s removed",
+  "respawn_complex.command.click_to_teleport": "Click to teleport",
+  "respawn_complex.command.list.empty": "No respawn points",
+  "respawn_complex.message.activated": "Respawn point activated",
+  "respawn_complex.config.category.sync": "Sync",
+  "respawn_complex.option.enable_sync": "Enable Sync",
+  "respawn_complex.option.enable_sync.tooltip": "Respawn points will sync with blocks with tag #respawn_complex:respawn_point"
+}

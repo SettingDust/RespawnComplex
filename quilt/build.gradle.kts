@@ -23,27 +23,39 @@ architectury {
 
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+
+    runs {
+        getByName("client") {
+            vmArg("-Dloader.workaround.disable_strict_parsing=true")
+            vmArg("-Dmixin.hotSwap=true")
+            vmArg("-Dmixin.checks.interfaces=true")
+            vmArg("-Dmixin.debug.export=true")
+            vmArg("-Dmixin.debug.verbose=true")
+        }
+    }
 }
 
 /**
  * @see: https://docs.gradle.org/current/userguide/migrating_from_groovy_to_kotlin_dsl.html
  * */
 val common: Configuration by configurations.creating
-val shadowCommon: Configuration by configurations.creating // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+val shadowCommon: Configuration by configurations.creating
+val developmentQuilt: Configuration by configurations.getting
 
-val developmentQuilt: Configuration = configurations.getByName("developmentQuilt")
 configurations {
-    compileClasspath { extendsFrom(configurations["common"]) }
-    runtimeClasspath { extendsFrom(configurations["common"]) }
-    developmentQuilt.extendsFrom(configurations["common"])
+    compileOnly.configure { extendsFrom(common) }
+    runtimeOnly.configure { extendsFrom(common) }
+    developmentQuilt.extendsFrom(common)
 }
 
 dependencies {
     modImplementation(libs.quilt.loader)
-    modImplementation(libs.quilt.fabricApi) {
+    modApi(libs.quilt.fabricApi) {
         exclude(group = "org.quiltmc")
     }
-    modImplementation(libs.quilt.standardLibraries)
+    modApi(libs.quilt.standardLibraries) {
+        exclude(group = "org.quiltmc")
+    }
     // Remove the next few lines if you don't want to depend on the API
 //    modApi(libs.architectury.fabric) {
 //        // We must not pull Fabric Loader from Architectury Fabric
@@ -51,37 +63,50 @@ dependencies {
 //        exclude(group = "net.fabricmc.fabric-api")
 //    }
 
-    modRuntimeOnly(libs.yacl) {
+    modApi(libs.yacl) {
         exclude(group = "net.fabricmc")
         exclude(group = "net.fabricmc.fabric-api")
     }
-    modRuntimeOnly(libs.cardinalComponents.base) {
+    modApi(libs.cardinalComponents.base) {
         exclude(group = "net.fabricmc")
         exclude(group = "net.fabricmc.fabric-api")
     }
-    modRuntimeOnly(libs.cardinalComponents.entity) {
+    modApi(libs.cardinalComponents.entity) {
         exclude(group = "net.fabricmc")
         exclude(group = "net.fabricmc.fabric-api")
     }
-    modRuntimeOnly(libs.cardinalComponents.world) {
+    modApi(libs.cardinalComponents.world) {
         exclude(group = "net.fabricmc")
         exclude(group = "net.fabricmc.fabric-api")
     }
     include(libs.cardinalComponents.base)
     include(libs.cardinalComponents.entity)
     include(libs.cardinalComponents.world)
-    modRuntimeOnly(libs.minecratTagSerializationLocal)
+
+    modApi(libs.minecratTagSerializationLocal)
     include(libs.minecratTagSerializationLocal)
 
-    common(project(":common", configuration = "namedElements")) { isTransitive = false }
-    shadowCommon(project(":common", configuration = "transformProductionQuilt")) { isTransitive = false }
-    common(project(":fabric-like", configuration = "namedElements")) { isTransitive = false }
-    shadowCommon(project(":fabric-like", configuration = "transformProductionQuilt")) { isTransitive = false }
+    common(project(":common", "namedElements")) {
+        isTransitive = false
+    }
+    shadowCommon(project(":common", "transformProductionQuilt")) {
+        isTransitive = false
+    }
+    common(project(":fabric-like", "namedElements")) {
+        isTransitive = false
+    }
+    shadowCommon(project(":fabric-like", "transformProductionQuilt")) {
+        isTransitive = false
+    }
 
-    modRuntimeOnly(libs.fabric.languageKotlin) {
+    modApi(libs.fabric.languageKotlin) {
         exclude(group = "net.fabricmc")
         exclude(group = "net.fabricmc.fabric-api")
     }
+
+    annotationProcessor(libs.mixin.extras)
+    implementation(libs.mixin.extras)
+    include(libs.mixin.extras)
 }
 
 val javaComponent = components.getByName<AdhocComponentWithVariants>("java")
