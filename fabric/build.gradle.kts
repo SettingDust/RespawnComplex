@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.minotaur)
 }
 
 architectury {
@@ -37,7 +38,7 @@ repositories {
 
 dependencies {
     modImplementation(libs.fabric.loader)
-//    modApi(libs.fabric.api)
+    modApi(libs.fabric.api)
     // Remove the next line if you don't want to depend on the API
 //    modApi(libs.architectury.fabric)
 
@@ -48,9 +49,32 @@ dependencies {
 
     modImplementation(libs.fabric.languageKotlin)
 
+    modApi(libs.yacl) {
+        exclude(group = "net.fabricmc")
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+    modApi(libs.cardinalComponents.base) {
+        exclude(group = "net.fabricmc")
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+    modApi(libs.cardinalComponents.entity) {
+        exclude(group = "net.fabricmc")
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+    modApi(libs.cardinalComponents.world) {
+        exclude(group = "net.fabricmc")
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+    include(libs.cardinalComponents.base)
+    include(libs.cardinalComponents.entity)
+    include(libs.cardinalComponents.world)
+
     annotationProcessor(libs.mixin.extras)
     implementation(libs.mixin.extras)
     include(libs.mixin.extras)
+
+    modApi(libs.minecratTagSerializationLocal)
+    include(libs.minecratTagSerializationLocal)
 }
 
 val javaComponent = components.getByName<AdhocComponentWithVariants>("java")
@@ -122,5 +146,25 @@ tasks {
         repositories {
             // Add repositories to publish to here.
         }
+    }
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN")) // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+    projectId.set("respawn-complex") // This can be the project ID or the slug. Either will work!
+    syncBodyFrom.set(rootProject.file("README.md").readText())
+    versionType.set("release") // This is the default -- can also be `beta` or `alpha`
+    uploadFile.set(tasks.remapJar) // With Loom, this MUST be set to `remapJar` instead of `jar`!
+    gameVersions.addAll("1.19.2") // Must be an array, even with only one version
+    loaders.add("fabric") // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+    loaders.add("quilt")
+    dependencies { // A special DSL for creating dependencies
+        // scope.type
+        // The scope can be `required`, `optional`, `incompatible`, or `embedded`
+        // The type can either be `project` or `version`
+        required.project("fabric-api") // Creates a new required dependency on Fabric API
+        required.version("fabric-language-kotlin", libs.versions.fabric.language.kotlin.get())
+        optional.project("waystones")
+        optional.project("fwaystones")
     }
 }

@@ -18,6 +18,8 @@ minecrat_tag_serialization = "0.1.0"
 luckperms = "5.4"
 modmenu = "4.0.6"
 mixin_extras = "0.2.0-beta.9"
+minotaur="2.+"
+shadow="7.1.2"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -64,3 +66,7 @@ architectury_loom = { id = "dev.architectury.loom", version = "1.2.+" }
 
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin_plugin_serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }

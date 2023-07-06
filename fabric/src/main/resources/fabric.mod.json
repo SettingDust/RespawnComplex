@@ -17,7 +17,19 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "${group}.fabric.EntrypointKt::Init"
+        "value": "${group}.Entrypoint"
+      }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "${group}.ConfigModmenuProvider"
+      }
+    ],
+    "cardinal-components": [
+      {
+        "adapter": "kotlin",
+        "value": "${group}.Components"
       }
     ]
   },
@@ -30,5 +42,10 @@
     "fabric": "*",
     "minecraft": ">=${minecraft_version}",
     "fabric-language-kotlin": ">=${fabric_language_kotlin_version}"
+  },
+  "custom": {
+    "cardinal-components": [
+      "${components}"
+    ]
   }
 }

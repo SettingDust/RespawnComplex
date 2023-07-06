@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.minotaur)
 }
 
 repositories {
