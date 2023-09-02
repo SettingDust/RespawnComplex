@@ -18,7 +18,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerLevel
-import settingdust.tag.serialization.MinecraftTag
+import settingdust.kinecraft.serialization.format.tag.MinecraftTag
 
 @OptIn(ExperimentalSerializationApi::class)
 internal val minecraftTag = MinecraftTag {
@@ -46,7 +46,7 @@ fun initFabricLike() {
         }
         .executes { context ->
             val player = context.source.player!!
-            val level = player.level
+            val level = player.level()
             val location = player.complexRespawnPoint(Location(level as ServerLevel, player.blockPosition()))
             player.teleportTo(location.pos.x + 0.5, location.pos.y.toDouble(), location.pos.z + 0.5)
             1
@@ -66,7 +66,7 @@ fun initFabricLike() {
         }
         .executes { context ->
             val player = context.source.player!!
-            player.level.complexSpawnPoints.add(player.blockPosition())
+            player.level().complexSpawnPoints.add(player.blockPosition())
             1
         }.build()
     val removeCommand = literal<CommandSourceStack>("remove").then(argument("location", blockPos()))
@@ -83,7 +83,7 @@ fun initFabricLike() {
         }
         .executes { context ->
             val player = context.source.player!!
-            val level = player.level
+            val level = player.level()
             val pos = try {
                 context.getArgument("location", BlockPos::class.java)
             } catch (_: IllegalArgumentException) {
@@ -93,25 +93,27 @@ fun initFabricLike() {
                 val closestPos = level.complexSpawnPoints.first { it.distSqr(pos) < 4 }
                 level.complexSpawnPoints.remove(closestPos)
                 context.source.sendSuccess(
-                    Component.translatable(
-                        "respawn_complex.command.remove.success",
-                        Component.literal(closestPos.toShortString())
-                            .withStyle(
-                                Style.EMPTY.withColor(ChatFormatting.GREEN)
-                                    .withClickEvent(
-                                        ClickEvent(
-                                            ClickEvent.Action.SUGGEST_COMMAND,
-                                            "/tp ${pos.x} ${pos.y} ${pos.z}",
+                    {
+                        Component.translatable(
+                            "respawn_complex.command.remove.success",
+                            Component.literal(closestPos.toShortString())
+                                .withStyle(
+                                    Style.EMPTY.withColor(ChatFormatting.GREEN)
+                                        .withClickEvent(
+                                            ClickEvent(
+                                                ClickEvent.Action.SUGGEST_COMMAND,
+                                                "/tp ${pos.x} ${pos.y} ${pos.z}",
+                                            ),
+                                        )
+                                        .withHoverEvent(
+                                            HoverEvent(
+                                                HoverEvent.Action.SHOW_TEXT,
+                                                Component.translatable("respawn_complex.command.click_to_teleport"),
+                                            ),
                                         ),
-                                    )
-                                    .withHoverEvent(
-                                        HoverEvent(
-                                            HoverEvent.Action.SHOW_TEXT,
-                                            Component.translatable("respawn_complex.command.click_to_teleport"),
-                                        ),
-                                    ),
-                            ),
-                    ),
+                                ),
+                        )
+                    },
                     true,
                 )
             } catch (e: NoSuchElementException) {
@@ -137,12 +139,14 @@ fun initFabricLike() {
         }
         .executes { context ->
             val player = context.source.player!!
-            val level = player.level
+            val level = player.level()
             val spawnPoints = level.complexSpawnPoints
             if (spawnPoints.isEmpty()) {
                 context.source.sendSuccess(
-                    Component.translatable("respawn_complex.command.list.empty")
-                        .withStyle(Style.EMPTY.withColor(ChatFormatting.RED)),
+                    {
+                        Component.translatable("respawn_complex.command.list.empty")
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.RED))
+                    },
                     false,
                 )
                 return@executes 0
@@ -167,7 +171,7 @@ fun initFabricLike() {
                                 ),
                         ),
                 )
-                context.source.sendSuccess(component, false)
+                context.source.sendSuccess({ component }, false)
             }
             1
         }.build()

@@ -6,7 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.SetSerializer
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Registry
+import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -42,7 +42,7 @@ fun ServerPlayer.activate(location: Location): Boolean {
 fun ServerPlayer.complexRespawnPoint(deathLocation: Location): Location =
     RespawnComplex.Components.COMPLEX_RESPAWNING[this].complexRespawnPoint(deathLocation)
 
-val respawnPointBlockTag by lazy { TagKey.create(Registry.BLOCK_REGISTRY, RespawnComplex.location("respawn_point")!!) }
+val respawnPointBlockTag by lazy { TagKey.create(Registries.BLOCK, RespawnComplex.location("respawn_point")!!) }
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("UnstableApiUsage")
@@ -101,11 +101,11 @@ data class ComplexRespawningComponent(private val player: Player) :
         super.copyForRespawn(original, lossless, keepInventory, sameCharacter)
         val respawnPoint = complexRespawnPoint(
             Location(
-                original.serverPlayer!!.level as ServerLevel,
+                original.serverPlayer!!.level() as ServerLevel,
                 original.serverPlayer!!.blockPosition(),
             ),
         )
-        serverPlayer!!.setRespawnPosition(serverPlayer!!.level.dimension(), respawnPoint.pos, 0f, false, false)
+        serverPlayer!!.setRespawnPosition(serverPlayer!!.level().dimension(), respawnPoint.pos, 0f, false, false)
         serverPlayer!!.moveTo(
             respawnPoint.pos.x + 0.5,
             respawnPoint.pos.y.toDouble(),
@@ -128,7 +128,7 @@ data class ComplexRespawningComponent(private val player: Player) :
         if (RespawnComplex.config.activateMethod != ActivateMethod.MOVING) return
         if (posCache == serverPlayer!!.blockPosition()) return
         posCache = serverPlayer!!.blockPosition()
-        val level = serverPlayer!!.level as ServerLevel
+        val level = serverPlayer!!.level() as ServerLevel
         level.complexSpawnPoints
             .filter { it.distSqr(serverPlayer!!.blockPosition()) <= RespawnComplex.config.activationRangeSqr }
             .filter { serverPlayer!!.activatedRespawnPoints.contains(Location(level, it)).not() }
@@ -174,9 +174,9 @@ data class ComplexRespawningComponent(private val player: Player) :
 
         return availableComplexPoint
             ?: availableOverworldSharedPoint ?: Location(
-            overworldLevel,
-            overworldLevel.sharedSpawnPos,
-        )
+                overworldLevel,
+                overworldLevel.sharedSpawnPos,
+            )
     }
 
     private fun availableSpaceFromPos(location: Location, radius: Int = 3): Location? {
@@ -184,10 +184,13 @@ data class ComplexRespawningComponent(private val player: Player) :
         val size = radius * 2
         val nearPoses = BlockPos.withinManhattan(location.pos, size, size, size).asSequence()
         val immutablePoses = nearPoses.map { it.immutable() }
-        val solidPoses = immutablePoses.filter { level.getBlockState(it.below()).material.blocksMotion() }
+        val solidPoses = immutablePoses.filter {
+            val blockState = level.getBlockState(it.below())
+            blockState.block.isPossibleToRespawnInThis(blockState)
+        }
         val safePoses = solidPoses.filter {
             val blocksAbove = level.getBlockStates(AABB(it, it.above())).asSequence()
-            val enoughSpace = blocksAbove.all { state -> !state.material.blocksMotion() }
+            val enoughSpace = blocksAbove.all { state -> !state.block.isPossibleToRespawnInThis(state) }
             enoughSpace
         }
         val shuffledSafeBlocks = safePoses.take(16).shuffled()

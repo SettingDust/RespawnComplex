@@ -2,13 +2,10 @@ package me.settingdust.respawncomplex
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
-import dev.isxander.yacl.api.ConfigCategory
-import dev.isxander.yacl.api.NameableEnum
-import dev.isxander.yacl.api.Option
-import dev.isxander.yacl.api.YetAnotherConfigLib
-import dev.isxander.yacl.gui.controllers.BooleanController
-import dev.isxander.yacl.gui.controllers.cycling.EnumController
-import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController
+import dev.isxander.yacl3.api.*
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder
+import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -81,40 +78,44 @@ data class Config(
                 ConfigCategory.createBuilder()
                     .name(Component.translatable("respawn_complex.config.category.activation"))
                     .option(
-                        Option.createBuilder(Boolean::class.java)
+                        Option.createBuilder<Boolean>()
                             .name(Component.translatable("respawn_complex.option.enable_activation"))
-                            .tooltip(Component.translatable("respawn_complex.option.enable_activation.tooltip"))
+                            .description(OptionDescription.of(Component.translatable("respawn_complex.option.enable_activation.tooltip")))
                             .binding(true, ::_enableActivation) { _enableActivation = it }
-                            .controller(::BooleanController)
+                            .controller { BooleanControllerBuilder.create(it) }
                             .build(),
                     )
                     .option(
-                        Option.createBuilder(ActivateMethod::class.java)
+                        Option.createBuilder<ActivateMethod>()
                             .name(Component.translatable("respawn_complex.option.activate_method"))
-                            .tooltip(
-                                Component.translatable(
-                                    "respawn_complex.option.activate_method.tooltip",
-                                    ActivateMethod.INTERACT.displayName,
-                                    ActivateMethod.MOVING.displayName,
+                            .description(
+                                OptionDescription.of(
+                                    Component.translatable(
+                                        "respawn_complex.option.activate_method.tooltip",
+                                        ActivateMethod.INTERACT.displayName,
+                                        ActivateMethod.MOVING.displayName,
+                                    )
                                 ),
                             )
                             .binding(ActivateMethod.INTERACT, ::_activateMethod) { _activateMethod = it }
-                            .controller(::EnumController)
+                            .controller {
+                                EnumControllerBuilder.create(it)
+                            }
                             .build(),
                     )
                     .option(
-                        Option.createBuilder(Boolean::class.java)
+                        Option.createBuilder<Boolean>()
                             .name(Component.translatable("respawn_complex.option.send_activation_message"))
                             .binding(true, ::_sendActivationMessage) { _sendActivationMessage = it }
-                            .controller(::BooleanController)
+                            .controller { BooleanControllerBuilder.create(it) }
                             .build(),
                     )
                     .option(
-                        Option.createBuilder(Int::class.java)
+                        Option.createBuilder<Int>()
                             .name(Component.translatable("respawn_complex.option.activation_range"))
-                            .tooltip(Component.translatable("respawn_complex.option.activation_range.tooltip"))
+                            .description(OptionDescription.of(Component.translatable("respawn_complex.option.activation_range.tooltip")))
                             .binding(4, ::_activationRange) { _activationRange = it }
-                            .controller { IntegerSliderController(it, 0, 32, 1) }
+                            .controller { IntegerSliderControllerBuilder.create(it).range(0, 32).step(1) }
                             .build(),
                     )
                     .build(),
@@ -123,11 +124,11 @@ data class Config(
                 ConfigCategory.createBuilder()
                     .name(Component.translatable("respawn_complex.config.category.sync"))
                     .option(
-                        Option.createBuilder(Boolean::class.java)
+                        Option.createBuilder<Boolean>()
                             .name(Component.translatable("respawn_complex.option.enable_sync"))
-                            .tooltip(Component.translatable("respawn_complex.option.enable_sync.tooltip"))
+                            .description(OptionDescription.of(Component.translatable("respawn_complex.option.enable_sync.tooltip")))
                             .binding(true, ::_enableSync) { _enableSync = it }
-                            .controller(::BooleanController)
+                            .controller { BooleanControllerBuilder.create(it) }
                             .build(),
                     )
                     .build(),

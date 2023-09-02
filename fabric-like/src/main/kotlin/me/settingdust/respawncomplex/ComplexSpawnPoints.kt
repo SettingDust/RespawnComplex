@@ -11,15 +11,16 @@ import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.RespawnAnchorBlock
-import settingdust.tag.serialization.decodeFromTag
-import settingdust.tag.serialization.encodeToTag
+import settingdust.kinecraft.serialization.format.tag.decodeFromTag
+import settingdust.kinecraft.serialization.format.tag.encodeToTag
 
 val Level.complexSpawnPoints: MutableSet<BlockPos>
     get() = RespawnComplex.Components.COMPLEX_RESPAWN_POINTS[this].spawnPoints
 
 internal fun BlockItem.syncBlockPlace(context: BlockPlaceContext) {
     if (!RespawnComplex.config.enableSync) return
-    if (block.builtInRegistryHolder().`is`(respawnPointBlockTag)) {
+    val blockState = context.level.getBlockState(context.clickedPos)
+    if (blockState.`is`(respawnPointBlockTag)) {
         var success = false
         when (block) {
             is RespawnAnchorBlock ->

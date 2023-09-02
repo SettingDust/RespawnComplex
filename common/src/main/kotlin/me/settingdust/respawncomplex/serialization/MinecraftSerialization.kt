@@ -11,6 +11,7 @@ import kotlinx.serialization.encoding.Encoder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry
 import net.minecraft.core.Vec3i
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -20,7 +21,7 @@ class LevelSerializer(private val server: MinecraftServer) : KSerializer<ServerL
     override val descriptor = PrimitiveSerialDescriptor(ServerLevel::class.simpleName!!, PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder) =
-        server.getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, ResourceLocation(decoder.decodeString())))!!
+        server.getLevel(ResourceKey.create(Registries.DIMENSION, ResourceLocation(decoder.decodeString())))!!
 
     override fun serialize(encoder: Encoder, value: ServerLevel) =
         encoder.encodeString(value.dimension().location().toString())
