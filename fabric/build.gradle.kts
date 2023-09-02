@@ -27,11 +27,25 @@ configurations {
 }
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = uri("https://api.modrinth.com/maven")
+            }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
     maven("https://maven.isxander.dev/releases") {
         name = "Xander Maven"
     }
     maven("https://maven.terraformersmc.com/releases") // Mod Menu. YACL need it
-    maven("https://ladysnake.jfrog.io/artifactory/mods")
+    maven {
+        name = "Ladysnake Mods"
+        url = uri("https://maven.ladysnake.org/releases")
+    }
     maven("https://jitpack.io")
     mavenLocal()
 }
@@ -73,8 +87,8 @@ dependencies {
     implementation(libs.mixin.extras)
     include(libs.mixin.extras)
 
-    modApi(libs.minecratTagSerializationLocal)
-    include(libs.minecratTagSerializationLocal)
+    modApi(libs.kinecraft.serialization)
+    include(libs.kinecraft.serialization)
 }
 
 val javaComponent = components.getByName<AdhocComponentWithVariants>("java")

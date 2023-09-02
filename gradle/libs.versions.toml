@@ -1,49 +1,66 @@
 [versions]
-kotlin = "1.8.0"
-kotlinx_serialization = "1.5.1"
-minecraft = "1.19.2"
-architectury = "6.5.85"
-forge = "1.19.2-43.2.14"
-kotlinforforge = "3.12.0"
-fabric_loader = "0.14.11"
-fabric_api = "0.76.0+1.19.2"
-fabric_language_kotlin = "1.9.5+kotlin.1.8.22"
-quilt_loader = "0.19.2-beta.2"
-quilt_fabric_api = "4.0.0-beta.30+0.76.0-1.19.2"
-quilt_standard_libraries = "3.0.0-beta.29+1.19.2"
-quilt_kotlin_libraries = "1.0.2+kt.1.8.0+flk.1.9.0"
-yet_another_config_lib = "1.7.1"
+# The latest Quilt versions are available at https://lambdaurora.dev/tools/import_quilt.html
+minecraft = "1.20.1"
+min_minecraft = "1.19.4"
+parchmentmc = "2023.07.16"
+
+yarn_mapping = "1.20.1+build.10"
+
+kotlin = "1.9.10"
+kotlinx_serialization = "1.6.0"
+kotlinx_coroutines = "1.7.3"
+
+#fabric
+fabric_loader = "0.14.22"
+fabric_language_kotlin = "1.10.10+kotlin.1.9.10"
+fabric_api="0.87.0+1.20.1"
+# quilt
+quilt_loader = "0.20.2"
+quilted_fabric_api = "6.0.0-beta.9+0.83.0-1.19.4"
+quilt_kotlin_libraries = "2.1.2+kt.1.9.0+flk.1.10.8"
+#forge
+forge = "1.20.1-47.1.46"
+kotlinforforge = "4.4.0"
+
+yacl = "3.0.3+1.20"
+min_yacl = "3.0.3"
+modmenu = "7.1.0"
+min_modmenu = "3.0.0"
+
 cardinal_components_api = "5.0.2"
-minecrat_tag_serialization = "0.1.0"
+
+kinecraft_serialization = "1.2.2-fabric"
+
 luckperms = "5.4"
-modmenu = "4.0.6"
-mixin_extras = "0.2.0-beta.9"
+
+mixin_extras = "0.2.0-beta.10"
+
 minotaur="2.+"
-shadow="7.1.2"
+shadow="8.1.1"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
-architectury = { module = "dev.architectury:architectury", version.ref = "architectury" }
+#architectury = { module = "dev.architectury:architectury", version.ref = "architectury" }
 
-architectury_forge = { module = "dev.architectury:architectury-forge", version.ref = "architectury" }
+#architectury_forge = { module = "dev.architectury:architectury-forge", version.ref = "architectury" }
 forge = { module = "net.minecraftforge:forge", version.ref = "forge" }
 # https://github.com/thedarkcolour/KotlinForForge/blob/4.x/README.md
 kotlinforforge = { module = "thedarkcolour:kotlinforforge", version.ref = "kotlinforforge" }
 
-architectury_fabric = { module = "dev.architectury:architectury-fabric", version.ref = "architectury" }
+#architectury_fabric = { module = "dev.architectury:architectury-fabric", version.ref = "architectury" }
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
 fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
 # https://github.com/FabricMC/fabric-language-kotlin
 fabric_languageKotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric_language_kotlin" }
 
 quilt_loader = { module = "org.quiltmc:quilt-loader", version.ref = "quilt_loader" }
-quilt_fabricApi = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "quilt_fabric_api" }
-quilt_standardLibraries = { module = "org.quiltmc:qsl", version.ref = "quilt_standard_libraries" }
+quilt_fabricApi = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "quilted_fabric_api" }
+#quilt_standardLibraries = { module = "org.quiltmc:qsl", version.ref = "quilt_standard_libraries" }
 # https://github.com/QuiltMC/quilt-kotlin-libraries
 quilt_kotlinLibraries = { module = "org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries", version.ref = "quilt_kotlin_libraries" }
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
-yacl = { module = "dev.isxander:yet-another-config-lib", version.ref = "yet_another_config_lib" }
+yacl = { module = "dev.isxander.yacl:yet-another-config-lib-fabric", version.ref = "yacl" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 
 cardinalComponents_base = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-base", version.ref = "cardinal_components_api" }
@@ -53,16 +70,17 @@ cardinalComponents_world = { module = "dev.onyxstudios.cardinal-components-api:c
 kotlinx_serialization_core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx_serialization" }
 kotlinx_serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
 
-minecratTagSerialization = { module = "maven.modrinth:nbt-tag-serialization", version.ref = "minecrat_tag_serialization" }
-minecratTagSerializationLocal = { module = "settingdust.minecraft:nbt-tag-serialization", version.ref = "minecrat_tag_serialization" }
+kinecraft_serialization = { module = "maven.modrinth:kinecraft-serialization", version.ref = "kinecraft_serialization" }
 
 luckperms = { module = "net.luckperms:api", version.ref = "luckperms" }
 
 mixin_extras = { module = "com.github.llamalad7.mixinextras:mixinextras-fabric", version.ref = "mixin_extras" }
 
+parchment = { module = "org.parchmentmc.data:parchment-1.20.1", version.ref = "parchmentmc" }
+
 [plugins]
 architectury_plugin = { id = "architectury-plugin", version = "3.4-SNAPSHOT" }
-architectury_loom = { id = "dev.architectury.loom", version = "1.2.+" }
+architectury_loom = { id = "dev.architectury.loom", version = "1.3.+" }
 
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin_plugin_serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

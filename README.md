@@ -1,4 +1,4 @@
-# Spawn Complex
+# Respawn Complex
 
 Respawn to the closest respawn point
 

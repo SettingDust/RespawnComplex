@@ -25,7 +25,10 @@ repositories {
         name = "Xander Maven"
     }
     maven("https://maven.terraformersmc.com/releases") // Mod Menu. YACL need it
-    maven("https://ladysnake.jfrog.io/artifactory/mods")
+    maven {
+        name = "Ladysnake Mods"
+        url = uri("https://maven.ladysnake.org/releases")
+    }
     maven("https://jitpack.io")
     mavenLocal()
 }
@@ -51,7 +54,7 @@ dependencies {
     modApi(libs.cardinalComponents.entity)
     modApi(libs.cardinalComponents.world)
 
-    modApi(libs.minecratTagSerializationLocal)
+    modApi(libs.kinecraft.serialization)
 
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly(project(":common", configuration = "namedElements")) { isTransitive = false }

@@ -6,15 +6,29 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = uri("https://api.modrinth.com/maven")
+            }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
     maven("https://maven.quiltmc.org/repository/release/")
     maven("https://maven.isxander.dev/releases") {
         name = "Xander Maven"
     }
     maven("https://maven.terraformersmc.com/releases") // Mod Menu. YACL need it
-    maven("https://ladysnake.jfrog.io/artifactory/mods")
+    maven {
+        name = "Ladysnake Mods"
+        url = uri("https://maven.ladysnake.org/releases")
+    }
     maven("https://jitpack.io")
     mavenCentral()
+    mavenLocal()
 }
 
 architectury {
@@ -54,9 +68,9 @@ dependencies {
     modApi(libs.quilt.fabricApi) {
         exclude(group = "org.quiltmc")
     }
-    modApi(libs.quilt.standardLibraries) {
-        exclude(group = "org.quiltmc")
-    }
+//    modApi(libs.quilt.standardLibraries) {
+//        exclude(group = "org.quiltmc")
+//    }
     // Remove the next few lines if you don't want to depend on the API
 //    modApi(libs.architectury.fabric) {
 //        // We must not pull Fabric Loader from Architectury Fabric
@@ -84,8 +98,8 @@ dependencies {
     include(libs.cardinalComponents.entity)
     include(libs.cardinalComponents.world)
 
-    modApi(libs.minecratTagSerializationLocal)
-    include(libs.minecratTagSerializationLocal)
+    modApi(libs.kinecraft.serialization)
+    include(libs.kinecraft.serialization)
 
     common(project(":common", "namedElements")) {
         isTransitive = false

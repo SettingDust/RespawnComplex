@@ -27,13 +27,15 @@ subprojects {
         }
     }
     dependencies {
-        "minecraft"(rootProject.project.libs.minecraft)
-        // The following line declares the mojmap mappings, you may use other mappings as well
-        @Suppress("UnstableApiUsage")
+        "minecraft"(rootProject.libs.minecraft)
         "mappings"(
             loom.layered {
                 officialMojangMappings()
-                parchment("org.parchmentmc.data:parchment-${property("minecraft_version")}:${property("parchment_version")}")
+                parchment(
+                    variantOf(rootProject.libs.parchment) {
+                        artifactType("zip")
+                    },
+                )
             },
         )
         // The following line declares the yarn mappings you may select this one as well.
