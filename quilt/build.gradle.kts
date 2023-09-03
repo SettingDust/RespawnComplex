@@ -138,7 +138,7 @@ tasks {
         inputs.property("description", rootProject.property("mod_description").toString())
         inputs.property("author", rootProject.property("mod_author").toString())
         inputs.property("source", rootProject.property("mod_source").toString())
-        inputs.property("minecraft_version", libs.versions.minecraft.get())
+        inputs.property("minecraft_version", libs.versions.min.minecraft.get())
         inputs.property("quilt_kotlin_libraries_version", libs.versions.quilt.kotlin.libraries.get())
         inputs.property("fabric_language_kotlin_version", libs.versions.fabric.language.kotlin.get())
         inputs.property("components", project(":fabric-like").extraProperties["components"])
@@ -152,7 +152,7 @@ tasks {
                 "description" to rootProject.property("mod_description").toString(),
                 "author" to rootProject.property("mod_author").toString(),
                 "source" to rootProject.property("mod_source").toString(),
-                "minecraft_version" to libs.versions.minecraft.get(),
+                "minecraft_version" to libs.versions.min.minecraft.get(),
                 "fabric_language_kotlin_version" to libs.versions.fabric.language.kotlin.get(),
                 "quilt_kotlin_libraries_version" to libs.versions.quilt.kotlin.libraries.get(),
                 "components" to project(":fabric-like").extraProperties["components"],

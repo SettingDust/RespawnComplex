@@ -12,6 +12,12 @@ architectury {
 
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+
+    runs {
+        named("client") {
+            vmArgs("-Dmixin.debug.export=true")
+        }
+    }
 }
 
 /**
@@ -105,7 +111,7 @@ tasks {
         inputs.property("description", rootProject.property("mod_description").toString())
         inputs.property("author", rootProject.property("mod_author").toString())
         inputs.property("source", rootProject.property("mod_source").toString())
-        inputs.property("minecraft_version", libs.versions.minecraft.get())
+        inputs.property("minecraft_version", libs.versions.min.minecraft.get())
         inputs.property("fabric_language_kotlin_version", libs.versions.fabric.language.kotlin.get())
         inputs.property("components", project(":fabric-like").extraProperties["components"])
 
@@ -118,7 +124,7 @@ tasks {
                 "description" to rootProject.property("mod_description").toString(),
                 "author" to rootProject.property("mod_author").toString(),
                 "source" to rootProject.property("mod_source").toString(),
-                "minecraft_version" to libs.versions.minecraft.get(),
+                "minecraft_version" to libs.versions.min.minecraft.get(),
                 "fabric_language_kotlin_version" to libs.versions.fabric.language.kotlin.get(),
                 "components" to project(":fabric-like").extraProperties["components"],
             )
@@ -169,7 +175,7 @@ modrinth {
     syncBodyFrom.set(rootProject.file("README.md").readText())
     versionType.set("release") // This is the default -- can also be `beta` or `alpha`
     uploadFile.set(tasks.remapJar) // With Loom, this MUST be set to `remapJar` instead of `jar`!
-    gameVersions.addAll("1.19.2") // Must be an array, even with only one version
+    gameVersions.addAll("1.20.1", "1.20", "1.19.4") // Must be an array, even with only one version
     loaders.add("fabric") // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
     loaders.add("quilt")
     dependencies { // A special DSL for creating dependencies
@@ -178,6 +184,9 @@ modrinth {
         // The type can either be `project` or `version`
         required.project("fabric-api") // Creates a new required dependency on Fabric API
         required.version("fabric-language-kotlin", libs.versions.fabric.language.kotlin.get())
+        required.project("yacl")
+        embedded.version("kinecraft-serialization", libs.versions.kinecraft.serialization.get())
+        embedded.version("cardinal-components-api", libs.versions.cardinal.components.api.get())
         optional.project("waystones")
         optional.project("fwaystones")
     }

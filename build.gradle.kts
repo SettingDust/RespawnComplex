@@ -12,7 +12,7 @@ plugins {
 }
 
 architectury {
-    minecraft = rootProject.property("minecraft_version").toString()
+    minecraft = rootProject.libs.versions.minecraft.get()
 }
 
 subprojects {

@@ -171,8 +171,9 @@ fun initFabricLike() {
                                 ),
                         ),
                 )
-                context.source.sendSuccess({ component }, false)
+                component.append("\n")
             }
+            context.source.sendSuccess({ component }, false)
             1
         }.build()
 

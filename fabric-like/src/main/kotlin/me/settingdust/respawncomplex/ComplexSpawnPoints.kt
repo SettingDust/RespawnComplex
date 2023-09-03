@@ -8,24 +8,23 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.BlockItem
-import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.RespawnAnchorBlock
+import net.minecraft.world.level.block.state.BlockState
 import settingdust.kinecraft.serialization.format.tag.decodeFromTag
 import settingdust.kinecraft.serialization.format.tag.encodeToTag
 
 val Level.complexSpawnPoints: MutableSet<BlockPos>
     get() = RespawnComplex.Components.COMPLEX_RESPAWN_POINTS[this].spawnPoints
 
-internal fun BlockItem.syncBlockPlace(context: BlockPlaceContext) {
+internal fun BlockItem.syncBlockPlace(pos: BlockPos, level: ServerLevel, player: ServerPlayer, state: BlockState) {
     if (!RespawnComplex.config.enableSync) return
-    val blockState = context.level.getBlockState(context.clickedPos)
-    if (blockState.`is`(respawnPointBlockTag)) {
+    if (state.`is`(respawnPointBlockTag)) {
         var success = false
         when (block) {
             is RespawnAnchorBlock ->
-                if (RespawnAnchorBlock.canSetSpawn(context.level) &&
-                    (block.getStateForPlacement(context)?.getValue(RespawnAnchorBlock.CHARGE) ?: 0) > 0
+                if (RespawnAnchorBlock.canSetSpawn(level) &&
+                    (state.getValue(RespawnAnchorBlock.CHARGE) ?: 0) > 0
                 ) {
                     success = true
                 }
@@ -33,9 +32,8 @@ internal fun BlockItem.syncBlockPlace(context: BlockPlaceContext) {
             else -> success = true
         }
         if (success) {
-            val level = context.level as ServerLevel
-            level.complexSpawnPoints.add(context.clickedPos)
-            (context.player as ServerPlayer).activate(Location(level, context.clickedPos))
+            level.complexSpawnPoints.add(pos)
+            player.activate(Location(level, pos))
         }
     }
 }

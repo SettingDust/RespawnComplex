@@ -74,7 +74,7 @@ tasks {
         inputs.property("name", rootProject.property("mod_name").toString())
         inputs.property("description", rootProject.property("mod_description").toString())
         inputs.property("author", rootProject.property("mod_author").toString())
-        inputs.property("minecraft_version", libs.versions.minecraft.get())
+        inputs.property("minecraft_version", libs.versions.min.minecraft.get())
         inputs.property("forge_version", libs.versions.forge.get())
         inputs.property("kotlinforforge_version", libs.versions.kotlinforforge.get())
 
@@ -88,7 +88,7 @@ tasks {
                 "name" to rootProject.property("mod_name").toString(),
                 "description" to rootProject.property("mod_description").toString(),
                 "author" to rootProject.property("mod_author").toString(),
-                "minecraft_version" to libs.versions.minecraft.get(),
+                "minecraft_version" to libs.versions.min.minecraft.get(),
                 "forge_version" to libs.versions.forge.get(),
                 "kotlinforforge_version" to libs.versions.kotlinforforge.get(),
             )

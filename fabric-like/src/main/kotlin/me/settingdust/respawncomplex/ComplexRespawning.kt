@@ -186,11 +186,11 @@ data class ComplexRespawningComponent(private val player: Player) :
         val immutablePoses = nearPoses.map { it.immutable() }
         val solidPoses = immutablePoses.filter {
             val blockState = level.getBlockState(it.below())
-            blockState.block.isPossibleToRespawnInThis(blockState)
+            blockState.blocksMotion()
         }
         val safePoses = solidPoses.filter {
             val blocksAbove = level.getBlockStates(AABB(it, it.above())).asSequence()
-            val enoughSpace = blocksAbove.all { state -> !state.block.isPossibleToRespawnInThis(state) }
+            val enoughSpace = blocksAbove.all { state -> state.block.isPossibleToRespawnInThis(state) }
             enoughSpace
         }
         val shuffledSafeBlocks = safePoses.take(16).shuffled()

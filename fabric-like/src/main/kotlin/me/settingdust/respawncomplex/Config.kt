@@ -99,7 +99,7 @@ data class Config(
                             )
                             .binding(ActivateMethod.INTERACT, ::_activateMethod) { _activateMethod = it }
                             .controller {
-                                EnumControllerBuilder.create(it)
+                                EnumControllerBuilder.create(it).enumClass(ActivateMethod::class.java)
                             }
                             .build(),
                     )
