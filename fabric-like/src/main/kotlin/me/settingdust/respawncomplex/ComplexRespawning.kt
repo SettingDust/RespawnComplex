@@ -81,7 +81,7 @@ data class ComplexRespawningComponent(private val player: Player) :
                     }
                 }
             }
-            if (state.`is`(BlockTags.BEDS) || state.block is RespawnAnchorBlock) {
+            if (/* state.`is`(BlockTags.BEDS) || */state.block is RespawnAnchorBlock) {
                 InteractionResult.FAIL
             } else {
                 InteractionResult.PASS

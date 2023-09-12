@@ -32,6 +32,7 @@ internal fun BlockItem.syncBlockPlace(pos: BlockPos, level: ServerLevel, player:
             else -> success = true
         }
         if (success) {
+            RespawnComplex.logger.debug("Syncing block placing")
             level.complexSpawnPoints.add(pos)
             player.activate(Location(level, pos))
         }
@@ -48,11 +49,12 @@ data class ComplexSpawnPointsComponent(private val level: Level) : Component {
         get() = level as? ServerLevel
 
     init {
-        PlayerBlockBreakEvents.AFTER.register { level, player, blockPos, blockState, blockEntity ->
+        PlayerBlockBreakEvents.AFTER.register { level, player, blockPos, _, _ ->
             if (level !is ServerLevel) return@register
             if (player !is ServerPlayer) return@register
             if (serverLevel != level) return@register
             _spawnPoints.remove(blockPos)
+            RespawnComplex.logger.debug("Syncing block breaking")
             level.server.playerList.players.forEach {
                 it.activatedRespawnPoints.remove(
                     Location(

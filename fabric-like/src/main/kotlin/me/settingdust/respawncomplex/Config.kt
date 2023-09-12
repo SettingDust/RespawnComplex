@@ -45,6 +45,7 @@ data class Config(
     private var _enableSync: Boolean = true,
 ) {
     companion object {
+        @JvmStatic
         var Instance: Config
             private set
 

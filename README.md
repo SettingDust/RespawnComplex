@@ -4,12 +4,13 @@ Respawn to the closest respawn point
 
 ## Feature
 - Multiple respawn points and respawn to the closest one
+  - **Will disable respawn anchor and bed set spawn**
 - Optional require activation before respawn
   - Two activation method, interact and moving.
 - Optional points sync with blocks with `#respawn_complex:respawn_point` tag.
+  - Since the blocks are a tag, you can modify the blocks to sync with a datapack 
   - Sync means auto create/remove point when place/break by player
   - Respawn anchor, waystones(from the two), beacon is `#respawn_complex:respawn_point` by default
-  - **Will disable respawn anchor and bed function**
   - Respawn anchor only works in level that can work
   - Notice: the generated blocks won't be treated as point before anyone interact it. So, it's recommend to using activation and set method to interacting
 
