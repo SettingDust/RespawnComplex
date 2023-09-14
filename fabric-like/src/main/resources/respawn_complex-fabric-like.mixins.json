@@ -5,8 +5,8 @@
   "client": [
   ],
   "mixins": [
-    "MixinBedBlock",
-    "MixinBlockItem"
+    "MixinBlockItem",
+    "MixinRespawnAnchorBlock"
   ],
   "minVersion": "0.8",
   "injectors": {

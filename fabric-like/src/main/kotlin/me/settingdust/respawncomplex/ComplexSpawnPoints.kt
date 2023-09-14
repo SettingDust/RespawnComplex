@@ -20,22 +20,9 @@ val Level.complexSpawnPoints: MutableSet<BlockPos>
 internal fun BlockItem.syncBlockPlace(pos: BlockPos, level: ServerLevel, player: ServerPlayer, state: BlockState) {
     if (!RespawnComplex.config.enableSync) return
     if (state.`is`(respawnPointBlockTag)) {
-        var success = false
-        when (block) {
-            is RespawnAnchorBlock ->
-                if (RespawnAnchorBlock.canSetSpawn(level) &&
-                    (state.getValue(RespawnAnchorBlock.CHARGE) ?: 0) > 0
-                ) {
-                    success = true
-                }
-
-            else -> success = true
-        }
-        if (success) {
-            RespawnComplex.logger.debug("Syncing block placing")
-            level.complexSpawnPoints.add(pos)
-            player.activate(Location(level, pos))
-        }
+        RespawnComplex.logger.debug("Syncing block placing")
+        level.complexSpawnPoints.add(pos)
+        player.activate(Location(level, pos))
     }
 }
 
@@ -53,15 +40,11 @@ data class ComplexSpawnPointsComponent(private val level: Level) : Component {
             if (level !is ServerLevel) return@register
             if (player !is ServerPlayer) return@register
             if (serverLevel != level) return@register
-            _spawnPoints.remove(blockPos)
-            RespawnComplex.logger.debug("Syncing block breaking")
-            level.server.playerList.players.forEach {
-                it.activatedRespawnPoints.remove(
-                    Location(
-                        serverLevel!!,
-                        blockPos,
-                    ),
-                )
+            val toRemove = _spawnPoints.filter { it.distSqr(blockPos) <= 3 }.toHashSet()
+            _spawnPoints.removeAll(toRemove)
+            RespawnComplex.logger.debug("Syncing block breaking at {}. Removed {}", blockPos, toRemove.joinToString())
+            level.server.playerList.players.forEach { currentPlayer ->
+                currentPlayer.activatedRespawnPoints.removeIf { it.level == level && it.pos in toRemove }
             }
         }
     }

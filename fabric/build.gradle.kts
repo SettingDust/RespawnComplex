@@ -13,6 +13,14 @@ architectury {
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
 
+//    mods {
+//        register(rootProject.property("mod_id").toString()) {
+//            sourceSet("main")
+//            sourceSet("main", project(":common"))
+//            sourceSet("main", project(":fabric-like"))
+//        }
+//    }
+
     runs {
         named("client") {
             vmArgs("-Dmixin.debug.export=true")

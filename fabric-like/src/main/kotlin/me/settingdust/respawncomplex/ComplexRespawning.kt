@@ -4,6 +4,7 @@ import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent
 import dev.onyxstudios.cca.api.v3.entity.PlayerComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.SetSerializer
+import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
@@ -11,11 +12,9 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.tags.BlockTags
 import net.minecraft.tags.TagKey
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.block.RespawnAnchorBlock
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.HitResult
 import kotlin.streams.asSequence
@@ -57,35 +56,23 @@ data class ComplexRespawningComponent(private val player: Player) :
     private var posCache = BlockPos.ZERO
 
     init {
+        EntitySleepEvents.ALLOW_SETTING_SPAWN.register { _, _ ->
+            return@register false
+        }
         UseBlockCallback.EVENT.register { player, world, _, hitResult ->
             if (world !is ServerLevel) return@register InteractionResult.PASS
             if (player != this.serverPlayer) return@register InteractionResult.PASS
             if (hitResult.type != HitResult.Type.BLOCK) return@register InteractionResult.PASS
             val pos = hitResult.blockPos
             val state = world.getBlockState(pos)
-            if (RespawnComplex.config.enableSync && !world.complexSpawnPoints.contains(pos)) {
-                if (state.`is`(respawnPointBlockTag)) {
-                    var success = false
-                    when (state.block) {
-                        is RespawnAnchorBlock ->
-                            if (RespawnAnchorBlock.canSetSpawn(world) &&
-                                state.getValue(RespawnAnchorBlock.CHARGE) > 0
-                            ) {
-                                success = true
-                            }
-
-                        else -> success = true
-                    }
-                    if (success && serverPlayer!!.activate(Location(world, pos))) {
-                        return@register InteractionResult.SUCCESS
-                    }
-                }
+            if (RespawnComplex.config.enableSync
+                && !world.complexSpawnPoints.contains(pos)
+                && state.`is`(respawnPointBlockTag)
+                && serverPlayer!!.activate(Location(world, pos))
+            ) {
+                return@register InteractionResult.SUCCESS
             }
-            if (/* state.`is`(BlockTags.BEDS) || */state.block is RespawnAnchorBlock) {
-                InteractionResult.FAIL
-            } else {
-                InteractionResult.PASS
-            }
+            InteractionResult.PASS
         }
     }
 
@@ -142,41 +129,79 @@ data class ComplexRespawningComponent(private val player: Player) :
             }
     }
 
+    fun spawnAtSharedOverworldSpawn(): Location {
+        val overworldLevel = serverPlayer!!.server.overworld()
+        return Location(overworldLevel, overworldLevel.sharedSpawnPos)
+    }
+
+    fun spawnsInOverworld(): Sequence<Location> {
+        val overworldLevel = serverPlayer!!.server.overworld()
+        val activatedSpawnsInOverworld by lazy {
+            activated.asSequence()
+                .filter { it.level == overworldLevel }
+                .filter {
+                    val state = it.level.getBlockState(it.pos)
+                    val block = state.block
+                    block !is ComplexSpawnable || block.`respawnComplex$isValid`(it.level, it.pos, state)
+                }
+        }
+        val spawnsInOverworld by lazy {
+            overworldLevel.complexSpawnPoints.asSequence()
+                .filter {
+                    val state = overworldLevel.getBlockState(it)
+                    val block = state.block
+                    block !is ComplexSpawnable || block.`respawnComplex$isValid`(
+                        overworldLevel,
+                        it,
+                        state
+                    )
+                }
+                .map { Location(overworldLevel, it) }
+        }
+        return if (RespawnComplex.config.enableActivation) activatedSpawnsInOverworld else spawnsInOverworld
+    }
+
+    fun spawnsInDeathLevel(deathLocation: Location): Sequence<Location> {
+        val activatedSpawnsInDeathLevel by lazy {
+            activated.asSequence()
+                .filter { it.level == deathLocation.level }
+                .filter {
+                    val state = it.level.getBlockState(it.pos)
+                    val block = state.block
+                    block !is ComplexSpawnable || block.`respawnComplex$isValid`(it.level, it.pos, state)
+                }
+                .sortedBy { it.pos.distSqr(deathLocation.pos) }
+        }
+        val spawnsInDeathLevel by lazy {
+            deathLocation.level.complexSpawnPoints.asSequence()
+                .filter {
+                    val state = deathLocation.level.getBlockState(it)
+                    val block = state.block
+                    block !is ComplexSpawnable || block.`respawnComplex$isValid`(
+                        deathLocation.level,
+                        it,
+                        state
+                    )
+                }
+                .sortedBy { it.distSqr(deathLocation.pos) }
+                .map { Location(deathLocation.level, it) }
+        }
+        return if (RespawnComplex.config.enableActivation) activatedSpawnsInDeathLevel else spawnsInDeathLevel
+    }
+
     fun complexRespawnPoint(deathLocation: Location): Location {
         activated.removeIf { it.level == deathLocation.level && it.pos !in deathLocation.level.complexSpawnPoints }
-        val availablePointFromActivated by lazy {
-            activated
-                .filter { it.level == deathLocation.level }
-                .sortedBy { it.pos.distSqr(deathLocation.pos) }
-                .firstNotNullOfOrNull { availableSpaceFromPos(it) }
-        }
-        val availablePointFromLevel by lazy {
-            deathLocation.level.complexSpawnPoints
-                .sortedBy { it.distSqr(deathLocation.pos) }
-                .firstNotNullOfOrNull { availableSpaceFromPos(Location(deathLocation.level, it)) }
-        }
-        val availableComplexPoint =
-            if (RespawnComplex.config.enableActivation) {
-                availablePointFromActivated
-            } else {
-                availablePointFromLevel
-            }
 
-        val overworldLevel = serverPlayer!!.server.overworld()
-        val availableOverworldSharedPoint by lazy {
-            availableSpaceFromPos(
-                Location(
-                    overworldLevel,
-                    overworldLevel.sharedSpawnPos,
-                ),
-            )
-        }
+        val possibleSpawns = spawnsInDeathLevel(deathLocation) + spawnsInOverworld() + spawnAtSharedOverworldSpawn()
 
-        return availableComplexPoint
-            ?: availableOverworldSharedPoint ?: Location(
-                overworldLevel,
-                overworldLevel.sharedSpawnPos,
-            )
+        val result = possibleSpawns.map { it to availableSpaceFromPos(it) }.filter { it.second != null }.first()
+        val location = result.first
+
+        val blockState = location.level.getBlockState(location.pos)
+        val block = blockState.block
+        if (block is ComplexSpawnable) block.`respawnComplex$onRespawn`(location.level, location.pos, blockState)
+
+        return result.second!!
     }
 
     private fun availableSpaceFromPos(location: Location, radius: Int = 3): Location? {

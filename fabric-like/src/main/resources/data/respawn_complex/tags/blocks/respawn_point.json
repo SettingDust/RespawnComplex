@@ -4,6 +4,10 @@
     "minecraft:beacon",
     "minecraft:respawn_anchor",
     {
+      "id": "#minecraft:beds",
+      "required": false
+    },
+    {
       "id": "#fwaystones:waystones",
       "required": false
     },

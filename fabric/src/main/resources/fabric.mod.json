@@ -46,6 +46,11 @@
   "custom": {
     "cardinal-components": [
       "${components}"
-    ]
+    ],
+    "loom:injected_interfaces": {
+      "net/minecraft/class_4969": [
+        "me/settingdust/respawncomplex/ComplexSpawnable"
+      ]
+    }
   }
 }
