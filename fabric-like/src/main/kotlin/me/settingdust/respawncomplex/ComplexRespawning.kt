@@ -68,10 +68,7 @@ data class ComplexRespawningComponent(private val player: Player) :
             if (RespawnComplex.config.enableSync
                 && !world.complexSpawnPoints.contains(pos)
                 && state.`is`(respawnPointBlockTag)
-                && serverPlayer!!.activate(Location(world, pos))
-            ) {
-                return@register InteractionResult.SUCCESS
-            }
+            ) serverPlayer!!.activate(Location(world, pos))
             InteractionResult.PASS
         }
     }
