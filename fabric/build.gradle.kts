@@ -24,6 +24,8 @@ loom {
     runs {
         named("client") {
             vmArgs("-Dmixin.debug.export=true")
+            vmArgs("-Dmixin.debug.verbose=true")
+            vmArgs("-Dmixin.hotSwap=true")
         }
     }
 }

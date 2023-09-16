@@ -2,14 +2,12 @@ package me.settingdust.respawncomplex
 
 import dev.onyxstudios.cca.api.v3.component.Component
 import kotlinx.serialization.ExperimentalSerializationApi
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.RespawnAnchorBlock
 import net.minecraft.world.level.block.state.BlockState
 import settingdust.kinecraft.serialization.format.tag.decodeFromTag
 import settingdust.kinecraft.serialization.format.tag.encodeToTag
@@ -17,12 +15,43 @@ import settingdust.kinecraft.serialization.format.tag.encodeToTag
 val Level.complexSpawnPoints: MutableSet<BlockPos>
     get() = RespawnComplex.Components.COMPLEX_RESPAWN_POINTS[this].spawnPoints
 
-internal fun BlockItem.syncBlockPlace(pos: BlockPos, level: ServerLevel, player: ServerPlayer, state: BlockState) {
+internal fun ServerLevel.syncBlockPlace(pos: BlockPos, oldState: BlockState, newState: BlockState) {
+    if (!RespawnComplex.config.enableSync
+        || newState.isAir
+        || !newState.`is`(respawnPointBlockTag)
+    ) return
+    val block = newState.block
+    if (block is ComplexSpawnable && !block.`respawnComplex$isValid`(
+            level,
+            pos,
+            newState
+        )
+    ) return
+    if (!complexSpawnPoints.add(pos)) return
+    RespawnComplex.logger.debug("Syncing block placing from block state change at {}", pos)
+}
+
+internal fun ServerLevel.syncBlockPlace(pos: BlockPos, player: ServerPlayer, state: BlockState) {
     if (!RespawnComplex.config.enableSync) return
-    if (state.`is`(respawnPointBlockTag)) {
-        RespawnComplex.logger.debug("Syncing block placing")
-        level.complexSpawnPoints.add(pos)
-        player.activate(Location(level, pos))
+    if (!state.`is`(respawnPointBlockTag)) return
+    val block = state.block
+    if (block is ComplexSpawnable && !block.`respawnComplex$isValid`(
+            this,
+            pos,
+            state
+        )
+    ) return
+    if (!complexSpawnPoints.add(pos)) return
+    RespawnComplex.logger.debug("Syncing block placing from player {} at {}", player.name, pos)
+    player.activate(Location(this, pos))
+}
+
+internal fun ServerLevel.syncBlockBreak(pos: BlockPos, oldState: BlockState, newState: BlockState) {
+    if (!RespawnComplex.config.enableSync) return
+    if (!newState.isAir) return
+    if (oldState.isAir) return
+    if (complexSpawnPoints.remove(pos)) {
+        RespawnComplex.logger.debug("Syncing block breaking at {}", pos)
     }
 }
 
@@ -34,20 +63,6 @@ data class ComplexSpawnPointsComponent(private val level: Level) : Component {
 
     val serverLevel: ServerLevel?
         get() = level as? ServerLevel
-
-    init {
-        PlayerBlockBreakEvents.AFTER.register { level, player, blockPos, _, _ ->
-            if (level !is ServerLevel) return@register
-            if (player !is ServerPlayer) return@register
-            if (serverLevel != level) return@register
-            val toRemove = _spawnPoints.filter { it.distSqr(blockPos) <= 3 }.toHashSet()
-            _spawnPoints.removeAll(toRemove)
-            RespawnComplex.logger.debug("Syncing block breaking at {}. Removed {}", blockPos, toRemove.joinToString())
-            level.server.playerList.players.forEach { currentPlayer ->
-                currentPlayer.activatedRespawnPoints.removeIf { it.level == level && it.pos in toRemove }
-            }
-        }
-    }
 
     override fun readFromNbt(tag: CompoundTag) {
         _spawnPoints = minecraftTag.decodeFromTag(tag.get("spawnPoints")!!)

@@ -33,7 +33,7 @@ public abstract class MixinBlockItem {
     ) {
         if (context.sourceEntity() instanceof ServerPlayer serverPlayer) {
             ComplexSpawnPointsKt.syncBlockPlace(
-                    (BlockItem) (Object) this, blockPos, (ServerLevel) level, serverPlayer, context.affectedState());
+                    (ServerLevel) level, blockPos, serverPlayer, context.affectedState());
         }
         return level;
     }

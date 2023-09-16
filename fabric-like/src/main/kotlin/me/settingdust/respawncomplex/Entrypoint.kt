@@ -7,6 +7,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import me.settingdust.respawncomplex.serialization.BlockPosAsLongSerializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions
 import net.fabricmc.loader.api.FabricLoader
 import net.luckperms.api.LuckPermsProvider
 import net.minecraft.ChatFormatting
@@ -18,6 +19,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.portal.PortalInfo
+import net.minecraft.world.phys.Vec3
 import settingdust.kinecraft.serialization.format.tag.MinecraftTag
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -47,8 +50,12 @@ fun initFabricLike() {
         .executes { context ->
             val player = context.source.player!!
             val level = player.level()
-            val location = player.complexRespawnPoint(Location(level as ServerLevel, player.blockPosition()))
-            player.teleportTo(location.pos.x + 0.5, location.pos.y.toDouble(), location.pos.z + 0.5)
+            val respawnPoint = player.complexRespawnPoint(Location(level as ServerLevel, player.blockPosition()))
+            FabricDimensions.teleport(
+                player,
+                respawnPoint.level,
+                PortalInfo(Vec3.atCenterOf(respawnPoint.pos), player.deltaMovement, player.yRot, player.xRot)
+            )
             1
         }
     val setCommand = literal<CommandSourceStack>("set")

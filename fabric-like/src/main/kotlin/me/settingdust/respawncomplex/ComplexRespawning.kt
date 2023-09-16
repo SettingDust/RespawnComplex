@@ -4,6 +4,7 @@ import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent
 import dev.onyxstudios.cca.api.v3.entity.PlayerComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.SetSerializer
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.core.BlockPos
@@ -15,8 +16,10 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.portal.PortalInfo
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.HitResult
+import net.minecraft.world.phys.Vec3
 import kotlin.streams.asSequence
 
 val ServerPlayer.activatedRespawnPoints: MutableSet<Location>
@@ -59,16 +62,20 @@ data class ComplexRespawningComponent(private val player: Player) :
         EntitySleepEvents.ALLOW_SETTING_SPAWN.register { _, _ ->
             return@register false
         }
-        UseBlockCallback.EVENT.register { player, world, _, hitResult ->
-            if (world !is ServerLevel) return@register InteractionResult.PASS
+        UseBlockCallback.EVENT.register { player, level, _, hitResult ->
+            if (level !is ServerLevel) return@register InteractionResult.PASS
             if (player != this.serverPlayer) return@register InteractionResult.PASS
             if (hitResult.type != HitResult.Type.BLOCK) return@register InteractionResult.PASS
             val pos = hitResult.blockPos
-            val state = world.getBlockState(pos)
-            if (RespawnComplex.config.enableSync
-                && !world.complexSpawnPoints.contains(pos)
-                && state.`is`(respawnPointBlockTag)
-            ) serverPlayer!!.activate(Location(world, pos))
+            val state = level.getBlockState(pos)
+            val block = state.block
+            if (RespawnComplex.config.enableSync && state.`is`(respawnPointBlockTag) && (block !is ComplexSpawnable || block.`respawnComplex$isValid`(
+                    level,
+                    pos,
+                    state
+                ))
+            ) level.complexSpawnPoints.add(pos)
+            if (level.complexSpawnPoints.contains(pos)) serverPlayer!!.activate(Location(level, pos))
             InteractionResult.PASS
         }
     }
@@ -90,10 +97,10 @@ data class ComplexRespawningComponent(private val player: Player) :
             ),
         )
         serverPlayer!!.setRespawnPosition(serverPlayer!!.level().dimension(), respawnPoint.pos, 0f, false, false)
-        serverPlayer!!.moveTo(
-            respawnPoint.pos.x + 0.5,
-            respawnPoint.pos.y.toDouble(),
-            respawnPoint.pos.z + 0.5,
+        FabricDimensions.teleport(
+            player,
+            respawnPoint.level,
+            PortalInfo(Vec3.atCenterOf(respawnPoint.pos), player.deltaMovement, player.yRot, player.xRot)
         )
     }
 
