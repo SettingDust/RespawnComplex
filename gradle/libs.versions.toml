@@ -27,7 +27,7 @@ min_yacl = "3.0.3"
 modmenu = "7.1.0"
 min_modmenu = "3.0.0"
 
-cardinal_components_api = "5.0.2"
+cardinal_components_api = "5.2.2"
 
 kinecraft_serialization = "1.2.2-fabric"
 
@@ -69,6 +69,8 @@ cardinalComponents_world = { module = "dev.onyxstudios.cardinal-components-api:c
 
 kotlinx_serialization_core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx_serialization" }
 kotlinx_serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
+
+kotlinx_coroutines_core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx_coroutines" }
 
 kinecraft_serialization = { module = "maven.modrinth:kinecraft-serialization", version.ref = "kinecraft_serialization" }
 

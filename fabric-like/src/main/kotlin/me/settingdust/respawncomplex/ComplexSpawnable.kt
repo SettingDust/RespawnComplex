@@ -12,4 +12,6 @@ interface ComplexSpawnable {
     fun `respawnComplex$isValid`(level: Level, pos: BlockPos, state: BlockState): Boolean
 
     fun `respawnComplex$onRespawn`(level: Level, pos: BlockPos, state: BlockState)
+
+    fun `respawnComplex$onActivate`(level: Level, pos: BlockPos, state: BlockState) {}
 }

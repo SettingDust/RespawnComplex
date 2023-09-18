@@ -6,6 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.SetSerializer
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.portal.PortalInfo
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.HitResult
@@ -62,6 +64,7 @@ data class ComplexRespawningComponent(private val player: Player) :
         EntitySleepEvents.ALLOW_SETTING_SPAWN.register { _, _ ->
             return@register false
         }
+
         UseBlockCallback.EVENT.register { player, level, _, hitResult ->
             if (level !is ServerLevel) return@register InteractionResult.PASS
             if (player != this.serverPlayer) return@register InteractionResult.PASS
@@ -81,28 +84,6 @@ data class ComplexRespawningComponent(private val player: Player) :
     }
 
     override fun shouldCopyForRespawn(lossless: Boolean, keepInventory: Boolean, sameCharacter: Boolean) = true
-
-    override fun copyForRespawn(
-        original: ComplexRespawningComponent,
-        lossless: Boolean,
-        keepInventory: Boolean,
-        sameCharacter: Boolean,
-    ) {
-        if (serverPlayer == null) return
-        super.copyForRespawn(original, lossless, keepInventory, sameCharacter)
-        val respawnPoint = complexRespawnPoint(
-            Location(
-                original.serverPlayer!!.level() as ServerLevel,
-                original.serverPlayer!!.blockPosition(),
-            ),
-        )
-        serverPlayer!!.setRespawnPosition(serverPlayer!!.level().dimension(), respawnPoint.pos, 0f, false, false)
-        FabricDimensions.teleport(
-            player,
-            respawnPoint.level,
-            PortalInfo(Vec3.atCenterOf(respawnPoint.pos), player.deltaMovement, player.yRot, player.xRot)
-        )
-    }
 
     override fun readFromNbt(tag: CompoundTag) {
         if (serverPlayer == null) return
