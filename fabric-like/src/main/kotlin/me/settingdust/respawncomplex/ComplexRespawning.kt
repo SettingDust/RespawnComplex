@@ -4,9 +4,7 @@ import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent
 import dev.onyxstudios.cca.api.v3.entity.PlayerComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.SetSerializer
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensions
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
@@ -17,11 +15,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.Level
-import net.minecraft.world.level.portal.PortalInfo
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.HitResult
-import net.minecraft.world.phys.Vec3
 import kotlin.streams.asSequence
 
 val ServerPlayer.activatedRespawnPoints: MutableSet<Location>
@@ -114,21 +109,28 @@ data class ComplexRespawningComponent(private val player: Player) :
             }
     }
 
-    fun spawnAtSharedOverworldSpawn(): Location {
+    private fun spawnAtSharedOverworldSpawn(): Location {
         val overworldLevel = serverPlayer!!.server.overworld()
+        RespawnComplex.logger.debug(
+            "Getting {} spawn point {}",
+            overworldLevel.dimension().location(),
+            overworldLevel.sharedSpawnPos.toShortString()
+        )
         return Location(overworldLevel, overworldLevel.sharedSpawnPos)
     }
 
-    fun spawnsInOverworld(): Sequence<Location> {
+    private fun spawnsInOverworld(): Sequence<Location> {
         val overworldLevel = serverPlayer!!.server.overworld()
         val activatedSpawnsInOverworld by lazy {
-            activated.asSequence()
+            val result = activated.asSequence()
                 .filter { it.level == overworldLevel }
                 .filter {
                     val state = it.level.getBlockState(it.pos)
                     val block = state.block
                     block !is ComplexSpawnable || block.`respawnComplex$isValid`(it.level, it.pos, state)
                 }
+
+            result
         }
         val spawnsInOverworld by lazy {
             overworldLevel.complexSpawnPoints.asSequence()
@@ -143,10 +145,17 @@ data class ComplexRespawningComponent(private val player: Player) :
                 }
                 .map { Location(overworldLevel, it) }
         }
+
+        RespawnComplex.logger.debug(
+            "Getting {} spawn points in {}",
+            if (RespawnComplex.config.enableActivation) "activated" else "all",
+            overworldLevel.dimension().location()
+        )
+
         return if (RespawnComplex.config.enableActivation) activatedSpawnsInOverworld else spawnsInOverworld
     }
 
-    fun spawnsInDeathLevel(deathLocation: Location): Sequence<Location> {
+    private fun spawnsInDeathLevel(deathLocation: Location): Sequence<Location> {
         val activatedSpawnsInDeathLevel by lazy {
             activated.asSequence()
                 .filter { it.level == deathLocation.level }
@@ -171,6 +180,13 @@ data class ComplexRespawningComponent(private val player: Player) :
                 .sortedBy { it.distSqr(deathLocation.pos) }
                 .map { Location(deathLocation.level, it) }
         }
+
+        RespawnComplex.logger.debug(
+            "Getting {} spawn points in {}",
+            if (RespawnComplex.config.enableActivation) "activated" else "all",
+            deathLocation.level.dimension().location()
+        )
+
         return if (RespawnComplex.config.enableActivation) activatedSpawnsInDeathLevel else spawnsInDeathLevel
     }
 
@@ -179,8 +195,30 @@ data class ComplexRespawningComponent(private val player: Player) :
 
         val possibleSpawns = spawnsInDeathLevel(deathLocation) + spawnsInOverworld() + spawnAtSharedOverworldSpawn()
 
-        val result = possibleSpawns.map { it to availableSpaceFromPos(it) }.filter { it.second != null }.first()
+        val result = possibleSpawns.map {
+            RespawnComplex.logger.debug(
+                "Considering the point at {} in {}",
+                it.pos,
+                it.level.dimension().location()
+            )
+            it to availableSpaceFromPos(it)
+        }.filter {
+            if (it.second == null) {
+                RespawnComplex.logger.debug(
+                    "No safe point for {} in {}",
+                    it.first.pos.toShortString(),
+                    it.first.level.dimension().location()
+                )
+            }
+            it.second != null
+        }.first()
         val location = result.first
+
+        RespawnComplex.logger.debug(
+            "Found the point at {} in {}",
+            location.pos,
+            location.level.dimension().location()
+        )
 
         val blockState = location.level.getBlockState(location.pos)
         val block = blockState.block

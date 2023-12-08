@@ -13,7 +13,7 @@ kotlinx_coroutines = "1.7.3"
 #fabric
 fabric_loader = "0.14.22"
 fabric_language_kotlin = "1.10.10+kotlin.1.9.10"
-fabric_api="0.87.0+1.20.1"
+fabric_api = "0.87.0+1.20.1"
 # quilt
 quilt_loader = "0.20.2"
 quilted_fabric_api = "6.0.0-beta.9+0.83.0-1.19.4"
@@ -31,12 +31,15 @@ cardinal_components_api = "5.2.2"
 
 kinecraft_serialization = "1.2.2-fabric"
 
+sleepTight = "1.20-1.1.8-fabric"
+moonlight = "fabric_1.20-2.8.60"
+
 luckperms = "5.4"
 
 mixin_extras = "0.2.0-beta.10"
 
-minotaur="2.+"
-shadow="8.1.1"
+minotaur = "2.+"
+shadow = "8.1.1"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -73,6 +76,9 @@ kotlinx_serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx_coroutines_core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx_coroutines" }
 
 kinecraft_serialization = { module = "maven.modrinth:kinecraft-serialization", version.ref = "kinecraft_serialization" }
+
+sleepTight = { module = "maven.modrinth:sleep-tight", version.ref = "sleepTight" }
+moonlight = { module = "maven.modrinth:moonlight", version.ref = "moonlight" }
 
 luckperms = { module = "net.luckperms:api", version.ref = "luckperms" }
 

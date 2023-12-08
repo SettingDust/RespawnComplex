@@ -105,6 +105,9 @@ dependencies {
 
     modApi(libs.kinecraft.serialization)
     include(libs.kinecraft.serialization)
+
+    modApi(libs.sleepTight)
+    modRuntimeOnly(libs.moonlight)
 }
 
 val javaComponent = components.getByName<AdhocComponentWithVariants>("java")
