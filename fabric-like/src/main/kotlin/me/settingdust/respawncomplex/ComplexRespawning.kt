@@ -111,26 +111,26 @@ data class ComplexRespawningComponent(private val player: Player) :
 
     private fun spawnAtSharedOverworldSpawn(): Location {
         val overworldLevel = serverPlayer!!.server.overworld()
+        val levelData = overworldLevel.levelData
+        val sharedSpawnPos = BlockPos(levelData.xSpawn, levelData.ySpawn, levelData.zSpawn)
         RespawnComplex.logger.debug(
             "Getting {} spawn point {}",
             overworldLevel.dimension().location(),
-            overworldLevel.sharedSpawnPos.toShortString()
+            sharedSpawnPos.toShortString()
         )
-        return Location(overworldLevel, overworldLevel.sharedSpawnPos)
+        return Location(overworldLevel, sharedSpawnPos)
     }
 
     private fun spawnsInOverworld(): Sequence<Location> {
         val overworldLevel = serverPlayer!!.server.overworld()
         val activatedSpawnsInOverworld by lazy {
-            val result = activated.asSequence()
+            activated.asSequence()
                 .filter { it.level == overworldLevel }
                 .filter {
                     val state = it.level.getBlockState(it.pos)
                     val block = state.block
                     block !is ComplexSpawnable || block.`respawnComplex$isValid`(it.level, it.pos, state)
                 }
-
-            result
         }
         val spawnsInOverworld by lazy {
             overworldLevel.complexSpawnPoints.asSequence()
