@@ -189,7 +189,7 @@ modrinth {
     versionType.set("release") // This is the default -- can also be `beta` or `alpha`
     uploadFile.set(tasks.remapJar) // With Loom, this MUST be set to `remapJar` instead of `jar`!
     gameVersions.addAll("1.20.1", "1.20") // Must be an array, even with only one version
-    changelog.set("feat: added more debug log")
+    changelog.set("fix: empty sequence when executing")
     loaders.add("fabric") // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
     loaders.add("quilt")
     dependencies { // A special DSL for creating dependencies

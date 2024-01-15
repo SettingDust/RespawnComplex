@@ -215,8 +215,9 @@ data class ComplexRespawningComponent(private val player: Player) :
 
         val possibleSpawns =
             spawnsInDeathLevel(deathLocation) +
-                if (serverPlayer!!.server.overworld() == deathLocation.level) emptySequence()
-                else spawnsInOverworld() + spawnAtSharedOverworldSpawn()
+                (if (serverPlayer!!.server.overworld() == deathLocation.level) emptySequence()
+                else spawnsInOverworld()) +
+                spawnAtSharedOverworldSpawn()
 
         val result =
             possibleSpawns
